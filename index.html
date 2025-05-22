@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>穿搭建議</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 50px; }
+    input { padding: 10px; width: 300px; }
+    button { padding: 10px 20px; }
+    img { margin-top: 30px; max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <h1>今天要去哪裡？</h1>
+  <input id="query" type="text" placeholder="例如：我要去約會" />
+  <button onclick="showOutfit()">看穿搭建議</button>
+  <div id="result"></div>
+
+  <script>
+    function showOutfit() {
+      const input = document.getElementById('query').value.toLowerCase();
+      let imgSrc = "";
+
+      if (input.includes("約會") || input.includes("date")) {
+        imgSrc = "images/date/date1.jpg";
+      } else if (input.includes("上班") || input.includes("工作") || input.includes("work")) {
+        imgSrc = "images/work/work1.jpg";
+      } else {
+        imgSrc = "images/casual/casual1.jpg";
+      }
+
+      document.getElementById("result").innerHTML = '<img src="' + imgSrc + '" alt="穿搭建議">';
+    }
+  </script>
+</body>
+</html>
