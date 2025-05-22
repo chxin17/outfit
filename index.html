@@ -1,37 +1,51 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>穿搭建議</title>
+  <title>穿搭建議示範網頁</title>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 50px; }
-    input { padding: 10px; width: 300px; }
-    button { padding: 10px 20px; }
-    img { margin-top: 30px; max-width: 100%; height: auto; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    select, button { font-size: 16px; padding: 8px; }
+    #resultImage { margin-top: 20px; max-width: 400px; display: none; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
-  <h1>今天要去哪裡？</h1>
-  <input id="query" type="text" placeholder="例如：我要去約會" />
-  <button onclick="showOutfit()">看穿搭建議</button>
-  <div id="result"></div>
+  <h1>穿搭建議示範網頁</h1>
+  <p>請從下拉選單選擇場合</p>
+  
+  <select id="selectOption">
+    <option value="" disabled selected>請選擇場合</option>
+    <option value="date">date</option>
+    <option value="work">work</option>
+    <option value="casual">casual</option>
+  </select>
+  
+  <button onclick="showImage()">顯示穿搭圖片</button>
+
+  <div>
+    <img id="resultImage" src="" alt="穿搭圖片" />
+  </div>
 
   <script>
-    function showOutfit() {
-      const input = document.getElementById('query').value.toLowerCase();
-      let imgSrc = "";
+    function showImage() {
+      const select = document.getElementById('selectOption');
+      const input = select.value;
+      const img = document.getElementById('resultImage');
 
-      if (input.includes("約會") || input.includes("date")) {
-        imgSrc = "images/date/date1.jpg";
-      } else if (input.includes("上班") || input.includes("工作") || input.includes("work")) {
-        imgSrc = "images/work/work1.jpg";
+      const images = {
+        date: 'images/date/1.jpg',
+        work: 'images/work/1.jpg',
+        casual: 'images/casual/1.jpg'
+      };
+
+      if (images[input]) {
+        img.src = images[input];
+        img.alt = input + ' 穿搭圖片';
+        img.style.display = 'block';
       } else {
-        imgSrc = "images/casual/casual1.jpg";
+        img.style.display = 'none';
+        alert('請先從下拉選單選擇場合');
       }
-
-      document.getElementById("result").innerHTML = '<img src="' + imgSrc + '" alt="穿搭建議">';
     }
   </script>
 </body>
