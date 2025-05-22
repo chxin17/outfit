@@ -2,49 +2,96 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>穿搭建議示範網頁</title>
+  <title>穿搭建議隨機圖片（含性別選擇）</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    select, button { font-size: 16px; padding: 8px; }
+    select, button { font-size: 16px; padding: 8px; margin-right: 10px; }
     #resultImage { margin-top: 20px; max-width: 400px; display: none; border: 1px solid #ccc; }
+    label { font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>穿搭建議示範網頁</h1>
-  <p>請從下拉選單選擇場合</p>
-  
+  <h1>穿搭建議隨機圖片（含性別選擇）</h1>
+  <p>請選擇場合與性別</p>
+
+  <label for="selectGender">性別：</label>
+  <select id="selectGender">
+    <option value="" disabled selected>請選擇性別</option>
+    <option value="male">男生</option>
+    <option value="female">女生</option>
+  </select>
+
+  <label for="selectOption">場合：</label>
   <select id="selectOption">
     <option value="" disabled selected>請選擇場合</option>
     <option value="date">date</option>
-    <option value="work">work</option>
-    <option value="casual">casual</option>
+    <option value="summer">summer</option>
+    <option value="sport">sport</option>
   </select>
-  
-  <button onclick="showImage()">顯示穿搭圖片</button>
+
+  <button onclick="showRandomImage()">顯示隨機圖片</button>
 
   <div>
     <img id="resultImage" src="" alt="穿搭圖片" />
   </div>
 
   <script>
-    function showImage() {
-      const select = document.getElementById('selectOption');
-      const input = select.value;
+    function showRandomImage() {
+      const gender = document.getElementById('selectGender').value;
+      const occasion = document.getElementById('selectOption').value;
       const img = document.getElementById('resultImage');
 
+      // 圖片結構示範： images/{gender}/{occasion}/1.jpg
+      // 你可以依照這個路徑準備你的圖片
+
       const images = {
-        date: 'images/date/1.jpg',
-        work: 'images/work/1.jpg',
-        casual: 'images/casual/1.jpg'
+        male: {
+          date: [
+            'images/male/date/1.jpg',
+            'images/male/date/2.jpg',
+            'images/male/date/3.jpg'
+          ],
+          summer: [
+            'images/male/summer/1.jpg',
+            'images/male/summer/2.jpg',
+            'images/male/summer/3.jpg'
+          ],
+          sport: [
+            'images/male/sport/1.jpg',
+            'images/male/sport/2.jpg',
+            'images/male/sport/3.jpg'
+          ]
+        },
+        female: {
+          date: [
+            'images/female/date/1.jpg',
+            'images/female/date/2.jpg',
+            'images/female/date/3.jpg'
+          ],
+         summer: [
+            'images/female/summer/1.jpg',
+            'images/female/summer/2.jpg',
+            'images/female/summer/3.jpg'
+          ],
+          sport: [
+            'images/female/sport/1.jpg',
+            'images/female/sport/2.jpg',
+            'images/female/sport/3.jpg'
+          ]
+        }
       };
 
-      if (images[input]) {
-        img.src = images[input];
-        img.alt = input + ' 穿搭圖片';
+      if (gender && occasion && images[gender] && images[gender][occasion]) {
+        const pics = images[gender][occasion];
+        const randomIndex = Math.floor(Math.random() * pics.length);
+        const selectedImg = pics[randomIndex];
+
+        img.src = selectedImg;
+        img.alt = gender + ' ' + occasion + ' 穿搭圖片';
         img.style.display = 'block';
       } else {
         img.style.display = 'none';
-        alert('請先從下拉選單選擇場合');
+        alert('請先選擇性別與場合');
       }
     }
   </script>
