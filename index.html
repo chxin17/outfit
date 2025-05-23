@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>穿搭建議隨機圖片（含性別選擇）</title>
+  <title>穿搭建議（自動載入圖片）</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     select, button { font-size: 16px; padding: 8px; margin-right: 10px; }
@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-  <h1>穿搭建議隨機圖片（含性別選擇）</h1>
+  <h1>穿搭建議（自動載入圖片）</h1>
   <p>請選擇場合與性別</p>
 
   <label for="selectGender">性別：</label>
@@ -21,77 +21,61 @@
     <option value="female">女生</option>
   </select>
 
-  <label for="selectOption">場合：</label>
-  <select id="selectOption">
+  <label for="selectOccasion">場合：</label>
+  <select id="selectOccasion">
     <option value="" disabled selected>請選擇場合</option>
-    <option value="date">date</option>
-    <option value="summer">summer</option>
-    <option value="sport">sport</option>
+    <option value="date">約會</option>
+    <option value="summer">夏天</option>
+    <option value="sport">運動</option>
   </select>
 
-  <button onclick="showRandomImage()">顯示隨機圖片</button>
+  <button onclick="loadAndShowImage()">顯示隨機圖片</button>
 
   <div>
     <img id="resultImage" src="" alt="穿搭圖片" />
   </div>
 
   <script>
-    function showRandomImage() {
+    async function loadAndShowImage() {
       const gender = document.getElementById('selectGender').value;
-      const occasion = document.getElementById('selectOption').value;
+      const occasion = document.getElementById('selectOccasion').value;
       const img = document.getElementById('resultImage');
 
-      // 圖片結構示範： images/{gender}/{occasion}/1.jpg
-      // 你可以依照這個路徑準備你的圖片
-
-      const images = {
-        male: {
-          date: [
-            'images/male/date/1.png',
-            'images/male/date/2.png',
-            'images/male/date/3.png'
-          ],
-          summer: [
-            'images/male/summer/1.jpg',
-            'images/male/summer/2.jpg',
-            'images/male/summer/3.jpg'
-          ],
-          sport: [
-            'images/male/sport/1.png',
-            'images/male/sport/2.png',
-            'images/male/sport/3.jpg'
-          ]
-        },
-        female: {
-          date: [
-            'images/female/date/1.png',
-            'images/female/date/2.png',
-            'images/female/date/3.png'
-          ],
-         summer: [
-            'images/female/summer/1.png',
-            'images/female/summer/2.png',
-            'images/female/summer/3.jpg'
-          ],
-          sport: [
-            'images/female/sport/1.png',
-            'images/female/sport/2.png',
-            'images/female/sport/3.jpg'
-          ]
-        }
-      };
-
-      if (gender && occasion && images[gender] && images[gender][occasion]) {
-        const pics = images[gender][occasion];
-        const randomIndex = Math.floor(Math.random() * pics.length);
-        const selectedImg = pics[randomIndex];
-
-        img.src = selectedImg;
-        img.alt = gender + ' ' + occasion + ' 穿搭圖片';
-        img.style.display = 'block';
-      } else {
-        img.style.display = 'none';
+      if (!gender || !occasion) {
         alert('請先選擇性別與場合');
+        return;
+      }
+
+      // GitHub repo 路徑
+      const repo = "chxin17/outfit";
+      const folderPath = `images/${gender}/${occasion}`;
+
+      const apiUrl = `https://api.github.com/repos/${repo}/contents/${folderPath}`;
+
+      try {
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("無法載入圖片");
+
+        const data = await res.json();
+        const imageFiles = data
+          .filter(file => file.type === "file" && (file.name.endsWith(".png") || file.name.endsWith(".jpg")))
+          .map(file => file.download_url);
+
+        if (imageFiles.length === 0) {
+          alert("這個分類沒有圖片！");
+          img.style.display = 'none';
+          return;
+        }
+
+        const randomIndex = Math.floor(Math.random() * imageFiles.length);
+        img.src = imageFiles[randomIndex];
+        img.alt = `${gender} ${occasion} 穿搭圖片`;
+        img.style.display = 'block';
+
+      } catch (error) {
+        console.error(error);
+        alert("載入圖片時發生錯誤！");
+        img.style.display = 'none';
       }
     }
   </script>
