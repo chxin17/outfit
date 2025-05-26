@@ -2,16 +2,30 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>穿搭扭蛋機</title>
+  <title>穿搭建議隨機圖片（含性別選擇）</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    select, button { font-size: 16px; padding: 8px; margin-right: 10px; }
+    select, button, input { font-size: 16px; padding: 8px; margin: 5px 10px 5px 0; }
     #resultImage { margin-top: 20px; max-width: 400px; display: none; border: 1px solid #ccc; }
     label { font-weight: bold; }
+    #favBtn { margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>穿搭扭蛋機</h1>
+
+  <!-- 名字輸入區 -->
+  <div id="welcomeSection">
+    <label for="usernameInput">請輸入你的名字：</label>
+    <input type="text" id="usernameInput" placeholder="例如：小美" />
+    <button onclick="saveUsername()">開始</button>
+  </div>
+
+  <h2 id="greeting" style="display:none;"></h2>
+
+  <!-- 收藏按鈕 -->
+  <button onclick="viewFavorites()">查看我的收藏</button>
+
+  <h1>穿搭建議隨機圖片（含性別選擇）</h1>
   <p>請選擇場合與性別</p>
 
   <label for="selectGender">性別：</label>
@@ -21,65 +35,135 @@
     <option value="female">女生</option>
   </select>
 
-  <label for="selectOccasion">場合：</label>
-  <select id="selectOccasion">
+  <label for="selectOption">場合：</label>
+  <select id="selectOption">
     <option value="" disabled selected>請選擇場合</option>
-    <option value="date">約會</option>
-    <option value="summer">夏天</option>
-    <option value="sport">運動</option>
-    <option value="Leisure">休閒</option>
-    <option value="Winter">冬天</option>
+    <option value="date">date</option>
+    <option value="summer">summer</option>
+    <option value="sport">sport</option>
   </select>
 
-  <button onclick="loadAndShowImage()">顯示隨機圖片</button>
+  <button onclick="showRandomImage()">顯示隨機圖片</button>
 
   <div>
     <img id="resultImage" src="" alt="穿搭圖片" />
+    <br />
+    <button id="favBtn" style="display: none;" onclick="addToFavorites()">♡ 加入收藏</button>
   </div>
 
   <script>
-    async function loadAndShowImage() {
-      const gender = document.getElementById('selectGender').value;
-      const occasion = document.getElementById('selectOccasion').value;
-      const img = document.getElementById('resultImage');
-
-      if (!gender || !occasion) {
-        alert('請先選擇性別與場合');
-        return;
-      }
-
-      // GitHub repo 路徑
-      const repo = "chxin17/outfit";
-      const folderPath = `images/${gender}/${occasion}`;
-
-      const apiUrl = `https://api.github.com/repos/${repo}/contents/${folderPath}`;
-
-      try {
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error("無法載入圖片");
-
-        const data = await res.json();
-        const imageFiles = data
-          .filter(file => file.type === "file" && (file.name.endsWith(".png") || file.name.endsWith(".jpg")))
-          .map(file => file.download_url);
-
-        if (imageFiles.length === 0) {
-          alert("這個分類沒有圖片！");
-          img.style.display = 'none';
-          return;
-        }
-
-        const randomIndex = Math.floor(Math.random() * imageFiles.length);
-        img.src = imageFiles[randomIndex];
-        img.alt = `${gender} ${occasion} 穿搭圖片`;
-        img.style.display = 'block';
-
-      } catch (error) {
-        console.error(error);
-        alert("載入圖片時發生錯誤！");
-        img.style.display = 'none';
+    // 1. 儲存名字並顯示歡迎語
+    function saveUsername() {
+      const name = document.getElementById('usernameInput').value;
+      if (name.trim() !== "") {
+        localStorage.setItem("username", name);
+        document.getElementById('greeting').textContent = `嗨，${name}，今天要去哪裡呢？`;
+        document.getElementById('greeting').style.display = 'block';
+        document.getElementById('welcomeSection').style.display = 'none';
+      } else {
+        alert("請輸入名字！");
       }
     }
+
+    // 2. 頁面載入時自動讀名字
+    window.onload = function () {
+      const savedName = localStorage.getItem("username");
+      if (savedName) {
+        document.getElementById('greeting').textContent = `歡迎回來，${savedName}！今天要去哪裡呢？`;
+        document.getElementById('greeting').style.display = 'block';
+        document.getElementById('welcomeSection').style.display = 'none';
+      }
+    };
+
+    // 3. 顯示圖片
+    function showRandomImage() {
+      const gender = document.getElementById('selectGender').value;
+      const occasion = document.getElementById('selectOption').value;
+      const img = document.getElementById('resultImage');
+
+      const images = {
+        male: {
+          date: [
+            'images/male/date/1.png',
+            'images/male/date/2.png',
+            'images/male/date/3.png'
+          ],
+          summer: [
+            'images/male/summer/1.jpg',
+            'images/male/summer/2.jpg',
+            'images/male/summer/3.jpg'
+          ],
+          sport: [
+            'images/male/sport/1.png',
+            'images/male/sport/2.png',
+            'images/male/sport/3.jpg'
+          ]
+        },
+        female: {
+          date: [
+            'images/female/date/1.png',
+            'images/female/date/2.png',
+            'images/female/date/3.png'
+          ],
+          summer: [
+            'images/female/summer/1.png',
+            'images/female/summer/2.png',
+            'images/female/summer/3.jpg'
+          ],
+          sport: [
+            'images/female/sport/1.png',
+            'images/female/sport/2.png',
+            'images/female/sport/3.jpg'
+          ]
+        }
+      };
+
+      if (gender && occasion && images[gender] && images[gender][occasion]) {
+        const pics = images[gender][occasion];
+        const randomIndex = Math.floor(Math.random() * pics.length);
+        const selectedImg = pics[randomIndex];
+
+        img.src = selectedImg;
+        img.alt = gender + ' ' + occasion + ' 穿搭圖片';
+        img.style.display = 'block';
+        document.getElementById('favBtn').style.display = 'inline-block';
+      } else {
+        img.style.display = 'none';
+        document.getElementById('favBtn').style.display = 'none';
+        alert('請先選擇性別與場合');
+      }
+    }
+
+    // 4. 收藏功能
+    function addToFavorites() {
+      const img = document.getElementById('resultImage');
+      const src = img.src;
+      if (src) {
+        let favs = JSON.parse(localStorage.getItem("favorites")) || [];
+        if (!favs.includes(src)) {
+          favs.push(src);
+          localStorage.setItem("favorites", JSON.stringify(favs));
+          alert("已加入收藏！");
+        } else {
+          alert("這張圖片已經在收藏清單中！");
+        }
+      }
+    }
+
+    // 5. 查看收藏
+    function viewFavorites() {
+      const favs = JSON.parse(localStorage.getItem("favorites")) || [];
+      if (favs.length === 0) {
+        alert("目前沒有收藏任何圖片");
+        return;
+      }
+      let html = "<h2>我的收藏</h2>";
+      favs.forEach(url => {
+        html += `<img src="${url}" style="max-width:200px; margin:10px;" />`;
+      });
+      document.body.innerHTML = html + `<br><button onclick="location.reload()">回首頁</button>`;
+    }
   </script>
+
 </body>
 </html>
