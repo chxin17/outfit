@@ -9,6 +9,24 @@
     #resultImage { margin-top: 20px; max-width: 400px; display: none; border: 1px solid #ccc; }
     label { font-weight: bold; }
     #favBtn { margin-top: 10px; }
+    /* 測驗彈窗 */
+    #quizSection {
+      display:none; 
+      position: fixed; 
+      top: 50%; left: 50%; 
+      transform: translate(-50%, -50%);
+      background: #fff; 
+      padding: 20px; 
+      border: 2px solid #333; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+      z-index: 1000; 
+      max-width: 400px;
+    }
+    #quizResult img {
+      max-width: 300px; 
+      border: 1px solid #ccc; 
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -51,6 +69,26 @@
     <img id="resultImage" src="" alt="穿搭圖片" />
     <br />
     <button id="favBtn" style="display: none;" onclick="addToFavorites()">♡ 加入收藏</button>
+  </div>
+
+  <!-- 新增開始測驗按鈕 -->
+  <button id="startQuizBtn" style="margin-top: 20px;">開始測驗</button>
+
+  <!-- 測驗區塊 -->
+  <div id="quizSection">
+    <div id="quizQuestion" style="font-weight:bold; margin-bottom: 10px;"></div>
+    <div id="quizOptions"></div>
+    <button id="nextQuestionBtn" style="margin-top:10px;">下一題</button>
+    <button id="closeQuizBtn" style="margin-top:10px; margin-left:10px;">關閉</button>
+  </div>
+
+  <!-- 測驗結果區 -->
+  <div id="quizResult" style="display:none; margin-top: 20px;">
+    <h3>你的風格測驗結果是：</h3>
+    <p id="resultStyleName" style="font-weight:bold;"></p>
+    <img id="resultStyleImage" src="" alt="測驗結果圖片" />
+    <br>
+    <button onclick="closeResult()">關閉結果</button>
   </div>
 
   <script>
@@ -99,11 +137,16 @@
             'images/male/sport/1.png',
             'images/male/sport/2.png',
             'images/male/sport/3.jpg'
-          ]
-            trip: [
+          ],
+          trip: [
             'images/male/trip/1.png',
             'images/male/trip/2.png',
             'images/male/trip/3.jpg'
+          ],
+          winter: [
+            'images/male/winter/1.png',
+            'images/male/winter/2.png',
+            'images/male/winter/3.jpg'
           ]
         },
         female: {
@@ -121,6 +164,20 @@
             'images/female/sport/1.png',
             'images/female/sport/2.png',
             'images/female/sport/3.jpg'
+          ],
+          trip: [
+            'images/female/trip/1.png',
+            'images/female/trip/2.png',
+            'images/female/trip/3.jpg',
+            'images/female/trip/4.png',
+            'images/female/trip/5.png',
+            'images/female/trip/6.jpg',
+            'images/female/trip/7.jpg'
+          ],
+          winter: [
+            'images/female/winter/1.png',
+            'images/female/winter/2.png',
+            'images/female/winter/3.jpg'
           ]
         }
       };
@@ -170,7 +227,79 @@
       });
       document.body.innerHTML = html + `<br><button onclick="location.reload()">回首頁</button>`;
     }
-  </script>
 
-</body>
-</html>
+    // --- 測驗功能開始 ---
+
+    const quizData = [
+      {
+        question: "你比較喜歡哪種顏色？",
+        options: [
+          { text: "黑色", style: "cool" },
+          { text: "白色", style: "classic" },
+          { text: "鮮豔色", style: "vibrant" }
+        ]
+      },
+      {
+        question: "你平常喜歡穿什麼風格？",
+        options: [
+          { text: "簡約時尚", style: "classic" },
+          { text: "街頭潮流", style: "vibrant" },
+          { text: "正式沉穩", style: "cool" }
+]
+}
+];
+    const styleImages = {
+  classic: "images/style/classic.png",
+  cool: "images/style/cool.png",
+  vibrant: "images/style/vibrant.png"
+};
+
+let currentQuiz = 0;
+let styleCount = { classic: 0, cool: 0, vibrant: 0 };
+
+document.getElementById("startQuizBtn").onclick = function () {
+  document.getElementById("quizSection").style.display = "block";
+  loadQuizQuestion();
+};
+
+document.getElementById("closeQuizBtn").onclick = function () {
+  document.getElementById("quizSection").style.display = "none";
+};
+
+document.getElementById("nextQuestionBtn").onclick = function () {
+  const selected = document.querySelector('input[name="quizOption"]:checked');
+  if (!selected) return alert("請選擇一個選項！");
+  const selectedStyle = selected.value;
+  styleCount[selectedStyle]++;
+
+  currentQuiz++;
+  if (currentQuiz < quizData.length) {
+    loadQuizQuestion();
+  } else {
+    showQuizResult();
+  }
+};
+
+function loadQuizQuestion() {
+  const q = quizData[currentQuiz];
+  document.getElementById("quizQuestion").textContent = q.question;
+  const optionsHtml = q.options.map((opt, index) =>
+    `<div><label><input type="radio" name="quizOption" value="${opt.style}"> ${opt.text}</label></div>`
+  ).join('');
+  document.getElementById("quizOptions").innerHTML = optionsHtml;
+}
+
+function showQuizResult() {
+  document.getElementById("quizSection").style.display = "none";
+  const resultStyle = Object.entries(styleCount).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  document.getElementById("quizResult").style.display = "block";
+  document.getElementById("resultStyleName").textContent = resultStyle === "classic" ? "經典風" : resultStyle === "cool" ? "酷帥風" : "亮眼風";
+  document.getElementById("resultStyleImage").src = styleImages[resultStyle];
+}
+
+function closeResult() {
+  document.getElementById("quizResult").style.display = "none";
+  currentQuiz = 0;
+  styleCount = { classic: 0, cool: 0, vibrant: 0 };
+}
+
