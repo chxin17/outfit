@@ -25,7 +25,7 @@
   <!-- 收藏按鈕 -->
   <button onclick="viewFavorites()">查看我的收藏</button>
 
-  <h1>穿搭建議隨機圖片（含性別選擇）</h1>
+  <h1>穿衣扭蛋機</h1>
   <p>請選擇場合與性別</p>
 
   <label for="selectGender">性別：</label>
@@ -38,9 +38,11 @@
   <label for="selectOption">場合：</label>
   <select id="selectOption">
     <option value="" disabled selected>請選擇場合</option>
-    <option value="date">date</option>
-    <option value="summer">summer</option>
-    <option value="sport">sport</option>
+    <option value="date">約會</option>
+    <option value="summer">夏天</option>
+    <option value="sport">運動</option>
+    <option value="trip">旅遊</option>
+    <option value="winter">冬天</option>
   </select>
 
   <button onclick="showRandomImage()">顯示隨機圖片</button>
@@ -57,7 +59,7 @@
       const name = document.getElementById('usernameInput').value;
       if (name.trim() !== "") {
         localStorage.setItem("username", name);
-        document.getElementById('greeting').textContent = `嗨，${name}，今天要去哪裡呢？`;
+        document.getElementById('greeting').textContent = `嗨~~~${name}，今天要去哪裡呢？`;
         document.getElementById('greeting').style.display = 'block';
         document.getElementById('welcomeSection').style.display = 'none';
       } else {
@@ -97,6 +99,11 @@
             'images/male/sport/1.png',
             'images/male/sport/2.png',
             'images/male/sport/3.jpg'
+          ]
+            trip: [
+            'images/male/trip/1.png',
+            'images/male/trip/2.png',
+            'images/male/trip/3.jpg'
           ]
         },
         female: {
