@@ -55,28 +55,32 @@
   </div>
 
   <script>
+    let currentUser = ""; // 儲存目前登入的使用者名稱
+
     // 1. 儲存名字並顯示歡迎語
     function saveUsername() {
-      const name = document.getElementById('usernameInput').value;
-      if (name.trim() !== "") {
-        localStorage.setItem("username", name);
-        document.getElementById('greeting').textContent = `嗨~~~${name}，今天要去哪裡呢？`;
-        document.getElementById('greeting').style.display = 'block';
-        document.getElementById('welcomeSection').style.display = 'none';
-      } else {
-        alert("請輸入名字！");
-      }
-    }
+  const name = document.getElementById('usernameInput').value.trim();
+  if (name !== "") {
+    localStorage.setItem("username", name);  // 儲存在 localStorage
+    currentUser = name;                      // 設定全域變數
+    document.getElementById('greeting').textContent = `嗨~~~${name}，今天要去哪裡呢？`;
+    document.getElementById('greeting').style.display = 'block';
+    document.getElementById('welcomeSection').style.display = 'none';
+  } else {
+    alert("請輸入名字！");
+  }
+}
 
     // 2. 頁面載入時自動讀名字
     window.onload = function () {
-      const savedName = localStorage.getItem("username");
-      if (savedName) {
-        document.getElementById('greeting').textContent = `歡迎回來，${savedName}！今天要去哪裡呢？`;
-        document.getElementById('greeting').style.display = 'block';
-        document.getElementById('welcomeSection').style.display = 'none';
-      }
-    };
+  const savedName = localStorage.getItem("username");
+  if (savedName) {
+    currentUser = savedName;
+    document.getElementById('greeting').textContent = `歡迎回來，${savedName}！今天要去哪裡呢？`;
+    document.getElementById('greeting').style.display = 'block';
+    document.getElementById('welcomeSection').style.display = 'none';
+  }
+};
 
     // 3. 顯示圖片
     function showRandomImage() {
@@ -121,33 +125,46 @@
 
     // 4. 收藏功能
     function addToFavorites() {
-      const img = document.getElementById('resultImage');
-      const src = img.src;
-      if (src) {
-        let favs = JSON.parse(localStorage.getItem("favorites")) || [];
-        if (!favs.includes(src)) {
-          favs.push(src);
-          localStorage.setItem("favorites", JSON.stringify(favs));
-          alert("已加入收藏！");
-        } else {
-          alert("這張圖片已經在收藏清單中！");
-        }
-      }
+  const img = document.getElementById('resultImage');
+  const src = img.src;
+  if (src && currentUser) {
+    // 讀取該使用者的收藏清單
+let favs = JSON.parse(localStorage.getItem("favorites_" + currentUser)) || [];
+
+// 加入收藏
+localStorage.setItem("favorites_" + currentUser, JSON.stringify(favs));
+
+    if (!favs.includes(src)) {
+      favs.push(src);
+      localStorage.setItem("favorites_" + currentUser, JSON.stringify(favs));
+      alert("已加入收藏！");
+    } else {
+      alert("這張圖片已經在收藏清單中！");
     }
+  } else if (!currentUser) {
+    alert("請先登入！");
+  }
+}
 
     // 5. 查看收藏
     function viewFavorites() {
-      const favs = JSON.parse(localStorage.getItem("favorites")) || [];
-      if (favs.length === 0) {
-        alert("目前沒有收藏任何圖片");
-        return;
-      }
-      let html = "<h2>我的收藏</h2>";
-      favs.forEach(url => {
-        html += `<img src="${url}" style="max-width:200px; margin:10px;" />`;
-      });
-      document.body.innerHTML = html + `<br><button onclick="location.reload()">回首頁</button>`;
-    }
+  if (!currentUser) {
+    alert("請先登入！");
+    return;
+  }
+  const favs = JSON.parse(localStorage.getItem("favorites_" + currentUser)) || [];
+  if (favs.length === 0) {
+    alert("目前沒有收藏任何圖片");
+    return;
+  }
+  let html = `<h2>${currentUser} 的收藏</h2>`;
+  favs.forEach(url => {
+    html += `<img src="${url}" style="max-width:200px; margin:10px;" />`;
+  });
+  html += `<br><button onclick="location.reload()">回首頁</button>`;
+  document.body.innerHTML = html;
+}
+
   </script>
 
 </body>
