@@ -1,34 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>穿衣扭蛋機</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    select, button, input { font-size: 16px; padding: 8px; margin: 5px 10px 5px 0; }
+    #resultImage { margin-top: 20px; max-width: 400px; display: none; border: 1px solid #ccc; }
+    label { font-weight: bold; }
+    #favBtn { margin-top: 10px; }
+  </style>
+</head>
 <body>
 
-  <h1>穿衣扭蛋機</h1>
-
-  <div id="selectionRow" style="display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: nowrap; margin-bottom: 20px;">
-    <span style="font-weight: bold; white-space: nowrap;">請選擇場合與性別</span>
-
-    <label for="selectGender" style="font-weight: bold; white-space: nowrap;">性別：</label>
-    <select id="selectGender">
-      <option value="" disabled selected>請選擇性別</option>
-      <option value="male">男生</option>
-      <option value="female">女生</option>
-    </select>
-
-    <label for="selectOption" style="font-weight: bold; white-space: nowrap;">場合：</label>
-    <select id="selectOption">
-      <option value="" disabled selected>請選擇場合</option>
-      <option value="date">約會</option>
-      <option value="summer">夏天</option>
-      <option value="sport">運動</option>
-      <option value="Leisure">休閒</option>
-      <option value="trip">旅行</option>
-      <option value="winter">冬天</option>
-    </select>
-
-    <button onclick="showRandomImage()">顯示隨機圖片</button>
+  
+  <div id="welcomeSection">
+    <label for="usernameInput">請輸入你的名字：</label>
+    <input type="text" id="usernameInput" placeholder="例如：小美" />
+    <button onclick="saveUsername()">開始</button>
   </div>
+
+  <h2 id="greeting" style="display:none;"></h2>
+
 
   <button onclick="viewFavorites()">查看我的收藏</button>
 
-  <h2 id="greeting" style="display:none;"></h2>
+  <h1>穿衣扭蛋機</h1>
+  <p>請選擇場合與性別</p>
+
+  <label for="selectGender">性別：</label>
+  <select id="selectGender">
+    <option value="" disabled selected>請選擇性別</option>
+    <option value="male">男生</option>
+    <option value="female">女生</option>
+  </select>
+
+  <label for="selectOption">場合：</label>
+  <select id="selectOption">
+    <option value="" disabled selected>請選擇場合</option>
+    <option value="date">約會</option>
+    <option value="summer">夏天</option>
+    <option value="sport">運動</option>
+    <option value="Leisure">休閒</option>
+    <option value="trip">旅行</option>
+    <option value="winter">冬天</option>
+  </select>
+
+  <button onclick="showRandomImage()">顯示隨機圖片</button>
 
   <div>
     <img id="resultImage" src="" alt="穿搭圖片" />
@@ -37,14 +55,11 @@
   </div>
 
   <script>
-    let currentUser = ""; // 儲存目前登入的使用者名稱
-
     // 1. 儲存名字並顯示歡迎語
     function saveUsername() {
-      const name = document.getElementById('usernameInput').value.trim();
-      if (name !== "") {
-        localStorage.setItem("username", name);  // 儲存在 localStorage
-        currentUser = name;                      // 設定全域變數
+      const name = document.getElementById('usernameInput').value;
+      if (name.trim() !== "") {
+        localStorage.setItem("username", name);
         document.getElementById('greeting').textContent = `嗨~~~${name}，今天要去哪裡呢？`;
         document.getElementById('greeting').style.display = 'block';
         document.getElementById('welcomeSection').style.display = 'none';
@@ -57,11 +72,9 @@
     window.onload = function () {
       const savedName = localStorage.getItem("username");
       if (savedName) {
-        currentUser = savedName;
         document.getElementById('greeting').textContent = `歡迎回來，${savedName}！今天要去哪裡呢？`;
         document.getElementById('greeting').style.display = 'block';
-        const welcomeSection = document.getElementById('welcomeSection');
-        if (welcomeSection) welcomeSection.style.display = 'none';
+        document.getElementById('welcomeSection').style.display = 'none';
       }
     };
 
@@ -110,40 +123,32 @@
     function addToFavorites() {
       const img = document.getElementById('resultImage');
       const src = img.src;
-      if (src && currentUser) {
-        // 讀取該使用者的收藏清單
-        let favs = JSON.parse(localStorage.getItem("favorites_" + currentUser)) || [];
-
+      if (src) {
+        let favs = JSON.parse(localStorage.getItem("favorites")) || [];
         if (!favs.includes(src)) {
           favs.push(src);
-          localStorage.setItem("favorites_" + currentUser, JSON.stringify(favs));
+          localStorage.setItem("favorites", JSON.stringify(favs));
           alert("已加入收藏！");
         } else {
           alert("這張圖片已經在收藏清單中！");
         }
-      } else if (!currentUser) {
-        alert("請先登入！");
       }
     }
 
     // 5. 查看收藏
     function viewFavorites() {
-      if (!currentUser) {
-        alert("請先登入！");
-        return;
-      }
-      const favs = JSON.parse(localStorage.getItem("favorites_" + currentUser)) || [];
+      const favs = JSON.parse(localStorage.getItem("favorites")) || [];
       if (favs.length === 0) {
         alert("目前沒有收藏任何圖片");
         return;
       }
-      let html = `<h2>${currentUser} 的收藏</h2>`;
+      let html = "<h2>我的收藏</h2>";
       favs.forEach(url => {
         html += `<img src="${url}" style="max-width:200px; margin:10px;" />`;
       });
-      html += `<br><button onclick="location.reload()">回首頁</button>`;
-      document.body.innerHTML = html;
+      document.body.innerHTML = html + `<br><button onclick="location.reload()">回首頁</button>`;
     }
   </script>
 
 </body>
+</html>
