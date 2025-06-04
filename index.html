@@ -13,7 +13,6 @@
 </head>
 <body>
 
-  
   <div id="welcomeSection">
     <label for="usernameInput">請輸入你的名字：</label>
     <input type="text" id="usernameInput" placeholder="例如：小美" />
@@ -21,8 +20,7 @@
   </div>
 
   <h2 id="greeting" style="display:none;"></h2>
-
-
+  <button onclick="logout()" style="display:none;" id="logoutBtn">登出 / 切換使用者</button>
   <button onclick="viewFavorites()">查看我的收藏</button>
 
   <h1>穿衣扭蛋機</h1>
@@ -54,36 +52,34 @@
     <button id="favBtn" style="display: none;" onclick="addToFavorites()">♡ 加入收藏</button>
   </div>
 
-  let currentUser = "";
   <script>
-    // 1. 儲存名字並顯示歡迎語
+    let currentUser = "";
+
     function saveUsername() {
-  const name = document.getElementById('usernameInput').value;
-  if (name.trim() !== "") {
-    localStorage.setItem("username", name);
-    currentUser = name;
-    document.getElementById('greeting').textContent = `嗨~~~${name}，今天要去哪裡呢？`;
-    document.getElementById('greeting').style.display = 'block';
-    document.getElementById('welcomeSection').style.display = 'none';
-  } else {
-    alert("請輸入名字！");
-  }
-}
+      const name = document.getElementById('usernameInput').value;
+      if (name.trim() !== "") {
+        localStorage.setItem("username", name);
+        currentUser = name;
+        document.getElementById('greeting').textContent = `嗨~~~${name}，今天要去哪裡呢？`;
+        document.getElementById('greeting').style.display = 'block';
+        document.getElementById('welcomeSection').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+      } else {
+        alert("請輸入名字！");
+      }
+    }
 
-
-    // 2. 頁面載入時自動讀名字
     window.onload = function () {
-  const savedName = localStorage.getItem("username");
-  if (savedName) {
-    currentUser = savedName;
-    document.getElementById('greeting').textContent = `歡迎回來，${savedName}！今天要去哪裡呢？`;
-    document.getElementById('greeting').style.display = 'block';
-    document.getElementById('welcomeSection').style.display = 'none';
-  }
-};
+      const savedName = localStorage.getItem("username");
+      if (savedName) {
+        currentUser = savedName;
+        document.getElementById('greeting').textContent = `歡迎回來，${savedName}！今天要去哪裡呢？`;
+        document.getElementById('greeting').style.display = 'block';
+        document.getElementById('welcomeSection').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'inline-block';
+      }
+    };
 
-
-    // 3. 顯示圖片
     function showRandomImage() {
       const gender = document.getElementById('selectGender').value;
       const occasion = document.getElementById('selectOption').value;
@@ -124,15 +120,17 @@
       }
     }
 
-    // 4. 收藏功能
     function addToFavorites() {
       const img = document.getElementById('resultImage');
       const src = img.src;
-      if (src) {
-        let favs = JSON.parse(localStorage.getItem("favorites")) || [];
-        if (!favs.includes(src)) {
-          favs.push(src);
-          localStorage.setItem("favorites", JSON.stringify(favs));
+      if (src && currentUser) {
+        let allFavs = JSON.parse(localStorage.getItem("favorites")) || {};
+        if (!allFavs[currentUser]) {
+          allFavs[currentUser] = [];
+        }
+        if (!allFavs[currentUser].includes(src)) {
+          allFavs[currentUser].push(src);
+          localStorage.setItem("favorites", JSON.stringify(allFavs));
           alert("已加入收藏！");
         } else {
           alert("這張圖片已經在收藏清單中！");
@@ -140,9 +138,9 @@
       }
     }
 
-    // 5. 查看收藏
     function viewFavorites() {
-      const favs = JSON.parse(localStorage.getItem("favorites")) || [];
+      const allFavs = JSON.parse(localStorage.getItem("favorites")) || {};
+      const favs = allFavs[currentUser] || [];
       if (favs.length === 0) {
         alert("目前沒有收藏任何圖片");
         return;
@@ -153,20 +151,12 @@
       });
       document.body.innerHTML = html + `<br><button onclick="location.reload()">回首頁</button>`;
     }
-    function viewFavorites() {
-  // 你的收藏顯示函式...
-}
 
-function logout() {
-  localStorage.removeItem("username");
-  location.reload();
-}
-
+    function logout() {
+      localStorage.removeItem("username");
+      location.reload();
+    }
   </script>
-  
-<button onclick="logout()">登出 / 切換使用者</button>
 
-
-  
 </body>
 </html>
