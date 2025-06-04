@@ -4,29 +4,44 @@
   <meta charset="UTF-8" />
   <title>穿衣扭蛋機</title>
   <style>
-  body {
+  html, body {
+    height: 100%;
+    margin: 0;
     font-family: Arial, sans-serif;
-    padding-top: 80px;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 50px;
+    box-sizing: border-box;
     text-align: center;
   }
+
   select, button, input {
     font-size: 16px;
     padding: 8px;
     margin: 5px 10px 5px 0;
   }
+
   #resultImage {
     margin-top: 20px;
     max-width: 400px;
     display: none;
     border: 1px solid #ccc;
   }
+
   label {
     font-weight: bold;
   }
+
   #favBtn {
     margin-top: 10px;
   }
 </style>
+
 
 </head>
 <body>
