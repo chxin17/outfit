@@ -129,10 +129,7 @@
   const src = img.src;
   if (src && currentUser) {
     // 讀取該使用者的收藏清單
-let favs = JSON.parse(localStorage.getItem("favorites_" + currentUser)) || [];
-
-// 加入收藏
-localStorage.setItem("favorites_" + currentUser, JSON.stringify(favs));
+    let favs = JSON.parse(localStorage.getItem("favorites_" + currentUser)) || [];
 
     if (!favs.includes(src)) {
       favs.push(src);
@@ -145,6 +142,7 @@ localStorage.setItem("favorites_" + currentUser, JSON.stringify(favs));
     alert("請先登入！");
   }
 }
+
 
     // 5. 查看收藏
     function viewFavorites() {
